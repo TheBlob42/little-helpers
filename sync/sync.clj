@@ -114,8 +114,11 @@
 
 (defn call-rsync!
   "Call the rsync command for the given sources and target."
-  [source target {:keys [delete? dry-run?] :or {delete? false dry-run? true}}]
-  (->> (shell {:out (if dry-run? :string :inherit)}
+  [source target {:keys [delete? dry-run? continue?] :or {delete? false
+                                                          dry-run? true
+                                                          continue? false}}]
+  (->> (shell {:out (if dry-run? :string :inherit)
+               :continue continue?}
               (str "rsync "
                    "--verbose "
                    "--recursive "
@@ -247,4 +250,6 @@
 
 (when (confirm "Syncing?" 5)
   (doseq [{:keys [source target mode]} config]
-    (call-rsync! source target {:delete? (= mode :delete) :dry-run? false})))
+    (call-rsync! source target {:delete? (= mode :delete)
+                                :dry-run? false
+                                :continue? true})))
